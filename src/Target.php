@@ -7,7 +7,7 @@ use yii\base\InvalidConfigException;
 /**
  * A log target for streams in URL format.
  */
-class Target extends Target
+class Target extends BaseTarget
 {
     /**
      * @var string the URL to use. See http://php.net/manual/en/wrappers.php for details.
