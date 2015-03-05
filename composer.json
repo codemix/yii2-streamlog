@@ -1,0 +1,17 @@
+{
+    "name": "codemix/yii2-streamlog",
+    "description": "A Yii 2 log target for streams in URL format",
+    "keywords": ["yii2", "log", "stream", "stdout"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Michael Härtl",
+            "email": "haertl.mike@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "codemix\\streamlog\\": "src/"
+        }
+    }
+}
