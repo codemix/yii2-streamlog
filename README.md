@@ -2,7 +2,7 @@ Yii2 Streamlog
 ==============
 
 [![Latest Stable Version](https://poser.pugx.org/codemix/yii2-streamlog/v/stable.svg)](https://packagist.org/packages/codemix/yii2-streamlog)
-[![Total Downloads](https://poser.pugx.org/codemix/yii2-streamlog/downloads.svg)](https://packagist.org/packages/codemix/yii2-streamlog)
+[![Total Downloads](https://poser.pugx.org/codemix/yii2-streamlog/downloads)](https://packagist.org/packages/codemix/yii2-streamlog)
 [![License](https://poser.pugx.org/codemix/yii2-streamlog/license.svg)](https://packagist.org/packages/codemix/yii2-streamlog)
 
 A Yii 2 log target for streams in URL format.
