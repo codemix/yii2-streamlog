@@ -44,3 +44,9 @@ return [
             ],
         ],
 ```
+
+## Configuration Options
+
+ * `$url` *string* the URL to use. See http://php.net/manual/en/wrappers.php for details.
+ * `$replaceNewline` *string|null* a string that should replace all newline characters in a log message.
+   Default ist `null` for no replacement.

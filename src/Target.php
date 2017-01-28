@@ -15,6 +15,12 @@ class Target extends BaseTarget
     public $url;
 
     /**
+     * @var string|null a string that should replace all newline characters in a log message.
+     * Default ist `null` for no replacement.
+     */
+    public $replaceNewline;
+
+    /**
      * Writes a log message to the given target URL
      * @throws InvalidConfigException if unable to open the stream for writing
      */
@@ -29,5 +35,14 @@ class Target extends BaseTarget
         }
         fwrite($fp, $text);
         fclose($fp);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function formatMessage($message)
+    {
+        $text = parent::formatMessage($message);
+        return $this->replaceNewline===null ? $text : str_replace("\n", $this->replaceNewline, $text);
     }
 }
