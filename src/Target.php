@@ -9,6 +9,19 @@ use yii\base\InvalidConfigException;
  */
 class Target extends BaseTarget
 {
+    private static $_instances = 0;
+    private static $_allHandles = [];
+    private static $_isCli = false;
+
+    /**
+     * Instance handle.
+     *
+     * Used to spare the array-look-up in the shared static pool.
+     *
+     * @var resource
+     */
+    private $_handle = null;
+
     /**
      * @var string the URL to use. See http://php.net/manual/en/wrappers.php for details.
      */
@@ -21,20 +34,73 @@ class Target extends BaseTarget
     public $replaceNewline;
 
     /**
-     * Writes a log message to the given target URL
-     * @throws InvalidConfigException if unable to open the stream for writing
+     * Init component's file handle and validate the passed configuration.
+     *
+     * @throws InvalidConfigException
+     *   When no URL is configured or unable to open the stream for writing.
      */
-    public function export()
-    {
-        $text = implode("\n", array_map([$this, 'formatMessage'], $this->messages)) . "\n";
+    public function init() {
+        // Add a new target instance flag.
+        ++self::$_instances;
+
+        // Validate config.
         if (empty($this->url)) {
             throw new InvalidConfigException("No url configured.");
         }
-        if (($fp = @fopen($this->url,'w')) === false) {
+
+        // Sniff-out the CLI-defined output constants.
+        // http://php.net/manual/en/features.commandline.io-streams.php
+        if (defined('STDOUT') || defined('STDERR')) {
+            self::$_isCli = true;
+            self::$_allHandles += ['php://stdout' => STDOUT];
+            self::$_allHandles += ['php://stderr' => STDERR];
+        }
+
+        // Reuse already opened streams for the URL to spare some I/O.
+        if (isset(self::$_allHandles[$this->url])) {
+            $this->_handle = self::$_allHandles[$this->url];
+            return;
+        }
+
+        // Try to open a new stream.
+        if (($this->_handle = @fopen($this->url,'w')) === false) {
             throw new InvalidConfigException("Unable to append to '{$this->url}'");
         }
-        fwrite($fp, $text);
-        fclose($fp);
+
+        // Allow others to reuse it.
+        self::$_allHandles[$this->url] = $this->_handle;
+    }
+
+    /**
+     * Writes a log message to the given target URL
+     */
+    public function export()
+    {
+        $callback = [$this, 'formatMessage'];
+        $text = implode("\n", array_map($callback, $this->messages)) . "\n";
+        fwrite($this->_handle, $text);
+    }
+
+    /**
+     * Clean-up.
+     */
+    public function __destruct() {
+        // Clean-up handles when the last instance is destroyed.
+        if (--self::$_instances > 0) {
+          return;
+        }
+
+        // For CLI context they were already opened, so skip closing them.
+        if (self::$_isCli) {
+          unset(self::$_allHandles['php://stdout']);
+          unset(self::$_allHandles['php://stderr']);
+        }
+
+        // Clear all opened streams.
+        foreach (self::$_allHandles as $handle) {
+          fclose($handle);
+        }
+        self::$_allHandles = [];
     }
 
     /**
