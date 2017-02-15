@@ -15,26 +15,54 @@ class Target extends BaseTarget
     public $url;
 
     /**
+     * Already open writable stream to send logs entries to.
+     *
+     * Recommended for use in CLI context for STDOUT and STDERR.
+     * Property 'url' takes precedence.
+     *
+     * @var resource
+     */
+    public $fp = null;
+
+    /**
      * @var string|null a string that should replace all newline characters in a log message.
      * Default ist `null` for no replacement.
      */
     public $replaceNewline;
 
     /**
-     * Writes a log message to the given target URL
-     * @throws InvalidConfigException if unable to open the stream for writing
+     * Validates class configuration.
+     *
+     * Ensures that a writable stream is present in the system, based on config.
+     *
+     * @throws InvalidConfigException When unable to aquire a writable stream.
+     */
+    public function init() {
+        // URL overwrites the passed on stream and is being explicitly opened.
+        if (!empty($this->url) && ($this->fp = @fopen($this->url, 'w')) !== false) {
+            return;
+        }
+
+        // We should have a writable stream passed in.
+        if (!empty($this->fp)
+            && is_resource($this->fp)
+            && ($metadata = stream_get_meta_data($this->fp))
+            && $metadata['mode'] == 'w'
+        ) {
+            return;
+        }
+
+        throw new InvalidConfigException("No writable stream aquired! Set `url` or `fp` properties.");
+    }
+
+    /**
+     * Writes a log message to the given target URL.
      */
     public function export()
     {
-        $text = implode("\n", array_map([$this, 'formatMessage'], $this->messages)) . "\n";
-        if (empty($this->url)) {
-            throw new InvalidConfigException("No url configured.");
-        }
-        if (($fp = @fopen($this->url,'w')) === false) {
-            throw new InvalidConfigException("Unable to append to '{$this->url}'");
-        }
-        fwrite($fp, $text);
-        fclose($fp);
+        $callback = [$this, 'formatMessage'];
+        $text = implode("\n", array_map($callback, $this->messages)) . "\n";
+        fwrite($this->fp, $text);
     }
 
     /**
@@ -43,6 +71,18 @@ class Target extends BaseTarget
     public function formatMessage($message)
     {
         $text = parent::formatMessage($message);
-        return $this->replaceNewline===null ? $text : str_replace("\n", $this->replaceNewline, $text);
+        if ($this->replaceNewline !== null) {
+            $text = str_replace("\n", $this->replaceNewline, $text);
+        }
+        return $text;
+    }
+
+    /**
+     * Clean-up streams that we've opened.
+     */
+    public function __destruct() {
+        if (!empty($this->url) && $this->fp) {
+            fclose($this->fp);
+        }
     }
 }
