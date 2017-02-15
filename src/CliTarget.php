@@ -24,7 +24,6 @@ class CliTarget extends BaseTarget
      * Already open writable stream to send logs entries to.
      *
      * Recommended for use in CLI context for STDOUT and STDERR.
-     * Property 'url' takes precedence.
      *
      * @var resource
      */
