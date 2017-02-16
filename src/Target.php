@@ -55,7 +55,7 @@ class Target extends BaseTarget
             throw new InvalidConfigException("Invalid resource.");
         }
         $metadata = stream_get_meta_data($value);
-        if ($metadata['mode']!=='w') {
+        if (!in_array($metadata['mode'], ['w', 'wb', 'a', 'ab'])) {
             throw new InvalidConfigException("Resource is not writeable.");
         }
         $this->fp = $value;
