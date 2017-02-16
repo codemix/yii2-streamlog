@@ -48,15 +48,16 @@ class Target extends BaseTarget
             }
             $this->fp = @fopen($this->url,'w');
             if ($this->fp===false) {
-                throw new InvalidConfigException("Unable to append to '{$this->url}'");
+                throw new InvalidConfigException("Unable to open '{$this->url}' for writing.");
             }
-        }
-        if (!is_resource($this->fp)) {
-            throw new InvalidConfigException("Invalid resource.");
-        }
-        $metadata = stream_get_meta_data($this->fp);
-        if ($metadata['mode']!=='w') {
-            throw new InvalidConfigException("Resource is not writeable.");
+        } else {
+            if (!is_resource($this->fp)) {
+                throw new InvalidConfigException("Invalid resource.");
+            }
+            $metadata = stream_get_meta_data($this->fp);
+            if ($metadata['mode']!=='w') {
+                throw new InvalidConfigException("Resource is not writeable.");
+            }
         }
     }
 
