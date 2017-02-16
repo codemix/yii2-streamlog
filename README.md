@@ -51,5 +51,6 @@ return [
    This gets ignored if `$fp` is configured.
  * `$fp` *resource* an open and writeable resource. This can also be one of
    PHP's pre-defined resources like `STDIN` or `STDERR`, which are available in CLI context.
+   Available since `1.2.0`.
  * `$replaceNewline` *string|null* a string that should replace all newline characters in a log message.
-   Default ist `null` for no replacement.
+   Default ist `null` for no replacement. Available since `1.1.0`.
