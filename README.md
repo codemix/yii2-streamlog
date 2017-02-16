@@ -12,6 +12,10 @@ This log target allows you to log to any of the URL like targets that are
 are docker containers that often log to `STDOUT` and `STDERR`, in which case
 the target urls would be `php://stdout` and `php://stderr` respectively.
 
+It's also possible to use an already opened resource or one of PHP's
+[predefined resource constants](http://php.net/manual/en/features.commandline.io-streams.php)
+(only available in CLI context). See the `$fp` option below.
+
 
 ## Installation and Configuration
 
@@ -47,10 +51,10 @@ return [
 
 ## Configuration Options
 
- * `$url` *string* the URL to use. See http://php.net/manual/en/wrappers.php for details.
+ * (*string*) `$url` the URL to use. See http://php.net/manual/en/wrappers.php for details.
    This gets ignored if `$fp` is configured.
- * `$fp` *resource* an open and writeable resource. This can also be one of
+ * (*resource*) `$fp` an open and writeable resource. This can also be one of
    PHP's pre-defined resources like `STDIN` or `STDERR`, which are available in CLI context.
-   Available since `1.2.0`.
- * `$replaceNewline` *string|null* a string that should replace all newline characters in a log message.
-   Default ist `null` for no replacement. Available since `1.1.0`.
+   (Since 1.2.0)
+ * (*string|null*) `$replaceNewline` a string that should replace all newline characters in a log message.
+   Default ist `null` for no replacement. (Since 1.1.0)
