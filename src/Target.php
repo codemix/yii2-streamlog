@@ -16,17 +16,12 @@ class Target extends BaseTarget
     public $url;
 
     /**
-     * @var resource an open and writeable resource. This can also be one of
-     * PHP's pre-defined resources like `STDIN` or `STDERR`, which are available
-     * in CLI context.
-     */
-    public $fp;
-
-    /**
      * @var string|null a string that should replace all newline characters
      * in a log message. Default ist `null` for no replacement.
      */
     public $replaceNewline;
+
+    protected $fp;
 
     /**
      * @inheritdoc
@@ -42,23 +37,40 @@ class Target extends BaseTarget
      * @inheritdoc
      */
     public function init() {
-        if (empty($this->fp)) {
-            if (empty($this->url)) {
-                throw new InvalidConfigException("Either 'url' or 'fp' mus be set.");
-            }
+        if (empty($this->fp) && empty($this->url)) {
+            throw new InvalidConfigException("Either 'url' or 'fp' mus be set.");
+        }
+    }
+
+    /**
+     * @param resource $value an open and writeable resource. This can also be
+     * one of PHP's pre-defined resources like `STDIN` or `STDERR`, which are
+     * available in CLI context.
+     */
+    public function setFp($value)
+    {
+        if (!is_resource($value)) {
+            throw new InvalidConfigException("Invalid resource.");
+        }
+        $metadata = stream_get_meta_data($value);
+        if ($metadata['mode']!=='w') {
+            throw new InvalidConfigException("Resource is not writeable.");
+        }
+        $this->fp = $value;
+    }
+
+    /**
+     * @return resource the stream resource to write messages to
+     */
+    public function getFp()
+    {
+        if ($this->fp===null) {
             $this->fp = @fopen($this->url,'w');
             if ($this->fp===false) {
                 throw new InvalidConfigException("Unable to open '{$this->url}' for writing.");
             }
-        } else {
-            if (!is_resource($this->fp)) {
-                throw new InvalidConfigException("Invalid resource.");
-            }
-            $metadata = stream_get_meta_data($this->fp);
-            if ($metadata['mode']!=='w') {
-                throw new InvalidConfigException("Resource is not writeable.");
-            }
         }
+        return $this->fp;
     }
 
     /**
@@ -68,7 +80,7 @@ class Target extends BaseTarget
     public function export()
     {
         $text = implode("\n", array_map([$this, 'formatMessage'], $this->messages)) . "\n";
-        fwrite($this->fp, $text);
+        fwrite($this->getFp(), $text);
     }
 
     /**
