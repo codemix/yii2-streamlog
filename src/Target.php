@@ -23,12 +23,14 @@ class Target extends BaseTarget
 
     protected $fp;
 
+    protected $openedFp = false;
+
     /**
      * @inheritdoc
      */
     public function __destruct()
     {
-        if (!empty($this->url)) {
+        if ($this->openedFp) {
             fclose($this->fp);
         }
     }
@@ -69,6 +71,7 @@ class Target extends BaseTarget
             if ($this->fp===false) {
                 throw new InvalidConfigException("Unable to open '{$this->url}' for writing.");
             }
+            $this->openedFp = true;
         }
         return $this->fp;
     }
