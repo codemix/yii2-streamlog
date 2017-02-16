@@ -48,5 +48,8 @@ return [
 ## Configuration Options
 
  * `$url` *string* the URL to use. See http://php.net/manual/en/wrappers.php for details.
+   This gets ignored if `$fp` is configured.
+ * `$fp` *resource* an open and writeable resource. This can also be one of
+   PHP's pre-defined resources like `STDIN` or `STDERR`, which are available in CLI context.
  * `$replaceNewline` *string|null* a string that should replace all newline characters in a log message.
    Default ist `null` for no replacement.
