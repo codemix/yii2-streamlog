@@ -98,6 +98,18 @@ class Target extends BaseTarget
     }
 
     /**
+     * Close the file handle if it was opened by this class
+     */
+    public function closeFp()
+    {
+        if ($this->openedFp && $this->fp !== null) {
+            @fclose($this->fp);
+            $this->fp = null;
+            $this->openedFp = false;
+        }
+    }
+
+    /**
      * Writes a log message to the given target URL
      * @throws InvalidConfigException if unable to open the stream for writing
      * @throws LogRuntimeException if unable to write log
@@ -116,6 +128,7 @@ class Target extends BaseTarget
         if ($this->enableLocking) {
             @flock($fp, LOCK_UN);
         }
+        $this->closeFp();
     }
 
     /**
