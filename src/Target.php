@@ -23,6 +23,12 @@ class Target extends BaseTarget
     public $replaceNewline;
 
     /**
+     * @var string|null a string that should replace all paragraph characters
+     * in a log message. Default ist `null` for no replacement.
+     */
+    public $replaceParagraph;
+
+    /**
      * @var bool whether to disable the timestamp. The default is `false` which
      * will prepend every message with a timestamp created with
      * [yii\log\Target::getTime()].
@@ -137,9 +143,13 @@ class Target extends BaseTarget
     public function formatMessage($message)
     {
         $text = $this->prefixString . trim(parent::formatMessage($message));
-        return $this->replaceNewline === null ?
+        $textAfterReplacingNewline = $this->replaceNewline === null ?
             $text :
             str_replace("\n", $this->replaceNewline, $text);
+
+        return $this->replaceParagraph === null ?
+            $textAfterReplacingNewline :
+            str_replace("\r\n", $this->replaceParagraph, $textAfterReplacingNewline);
     }
 
     /**
