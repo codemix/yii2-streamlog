@@ -61,7 +61,7 @@ class Target extends BaseTarget
      */
     public function init() {
         if (empty($this->fp) && empty($this->url)) {
-            throw new InvalidConfigException("Either 'url' or 'fp' mus be set.");
+            throw new InvalidConfigException("Either 'url' or 'fp' must be set.");
         }
     }
 
